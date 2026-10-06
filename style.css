@@ -1,0 +1,64 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(5, 60px);
+    gap: 5px;
+}
+
+.tile {
+    width: 60px;
+    height: 60px;
+    border: 2px solid #999;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 32px;
+    font-weight: bold;
+}
+
+/* Start Guesses Classes */
+
+.correct {
+    background-color: green;
+}
+
+.present {
+    background-color: goldenrod;
+}
+
+.absent {
+    background-color: gray;
+}
+/* End Guesses Classes */
+
+/* Start Keyboard Classes */
+
+.keyboard {
+    margin-top: 20px;
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.key {
+    width: 40px;
+    height: 55px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.wide-key {
+    width: 80px;
+}
+/* End Keyboard Classes */

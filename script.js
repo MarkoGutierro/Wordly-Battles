@@ -6,11 +6,12 @@ const keyboardRows = [
     ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
     ["ENTER", "Z", "X", "C", "V", "B", "N", "M", "BACKSPACE"]
 ]; // Store the three rows of keyboard letters
-const endMessage = document.getElementById("end-message"); //Message when game is over
+const endMessage = document.getElementById("end-message"); // Message when game is over
 const playAgainButton = document.getElementById("play-again"); // Get the Play Again button
+const socket = io("http://localhost:3000"); // Connect to the multiplayer server
 
-let currentTile = 0; //Track the current tile the player can type into
-let currentRow = 0; //Track the row the player is currently guessing on
+let currentTile = 0; // Track the current tile the player can type into
+let currentRow = 0; // Track the row the player is currently guessing on
 let filesReady = false; // Tracks whether both word files have finished loading
 let gameOver = false; // Tracks if game is still ongoing
 let gameWords = []; // Stores all possible solution words loaded from game_words.txt
@@ -18,6 +19,11 @@ let possibleGuesses = []; // Stores all valid guess words loaded from possible_g
 let secretWord = ""; // Stores the randomly selected solution for the current game
 
 loadWordFiles(); // Load both word files before allowing the game to start
+
+// Confirm when the frontend connects to the multiplayer server
+socket.on("connect", () => {
+    console.log("Connected to multiplayer server");
+});
 
 // Generate the game board
 for (let i = 0; i < 30; i++) {

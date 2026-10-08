@@ -9,6 +9,10 @@ const keyboardRows = [
 const endMessage = document.getElementById("end-message"); // Message when game is over
 const playAgainButton = document.getElementById("play-again"); // Get the Play Again button
 const socket = io("http://localhost:3000"); // Connect to the multiplayer server
+const multiplayerButton = document.getElementById("multiplayer-button"); // Multiplayer button
+const roomCodeDisplay = document.getElementById("room-code-display"); // Multiplayer room code
+const roomCodeInput = document.getElementById("room-code-input"); //  // Room code input field
+const joinRoomButton = document.getElementById("join-room-button");// Join multiplayer room button
 
 let currentTile = 0; // Track the current tile the player can type into
 let currentRow = 0; // Track the row the player is currently guessing on
@@ -19,11 +23,6 @@ let possibleGuesses = []; // Stores all valid guess words loaded from possible_g
 let secretWord = ""; // Stores the randomly selected solution for the current game
 
 loadWordFiles(); // Load both word files before allowing the game to start
-
-// Confirm when the frontend connects to the multiplayer server
-socket.on("connect", () => {
-    console.log("Connected to multiplayer server");
-});
 
 // Generate the game board
 for (let i = 0; i < 30; i++) {
@@ -284,3 +283,34 @@ function playAgain() {
 
     console.log(secretWord); // Display new solution word
 }
+
+// Confirm when the frontend connects to the multiplayer server
+socket.on("connect", () => {
+    console.log("Connected to multiplayer server");
+});
+
+// Send a request to the server to create a multiplayer room
+multiplayerButton.addEventListener("click", () => {
+    socket.emit("create-room");
+});
+
+// Display room code to creator upon room creation
+socket.on("room-created", (roomCode) => {
+    roomCodeDisplay.textContent = `Room Code: ${roomCode}`;
+});
+
+// Send the entered room code to the server when the Join Room button is clicked
+joinRoomButton.addEventListener("click", () => {
+    const roomCode = roomCodeInput.value.trim().toUpperCase();
+    socket.emit("join-room", roomCode);
+});
+
+// Display when the player successfully joins a room
+socket.on("room-joined", (roomCode) => {
+    roomCodeDisplay.textContent = `Room Joined | Code: ${roomCode}`;
+});
+
+// Display when the player fails to join a room
+socket.on("join-error", (message) => {
+    roomCodeDisplay.textContent = message;
+});

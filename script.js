@@ -13,6 +13,7 @@ const multiplayerButton = document.getElementById("multiplayer-button"); // Mult
 const roomCodeDisplay = document.getElementById("room-code-display"); // Multiplayer room code
 const roomCodeInput = document.getElementById("room-code-input"); //  // Room code input field
 const joinRoomButton = document.getElementById("join-room-button");// Join multiplayer room button
+const multiplayerErrorMessage = document.getElementById("multiplayer-error-message"); // Temporary multiplayer error messages
 
 let currentTile = 0; // Track the current tile the player can type into
 let currentRow = 0; // Track the row the player is currently guessing on
@@ -312,5 +313,10 @@ socket.on("room-joined", (roomCode) => {
 
 // Display when the player fails to join a room
 socket.on("join-error", (message) => {
-    roomCodeDisplay.textContent = message;
+    multiplayerErrorMessage.textContent = message; // Display the error message
+
+    // Error message only displays for 2 seconds
+    setTimeout(() => {
+        multiplayerErrorMessage.textContent = "";
+    }, 2000);
 });

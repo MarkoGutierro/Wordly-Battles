@@ -37,6 +37,11 @@ server.listen(3000, () => {
 
 // Create a new multiplayer room when requested
 function createRoom(socket) {
+    // Make the player leave their current room, if applicable
+    if (socket.roomCode) {
+        leaveCurrentRoom(socket);
+    }
+
     const roomCode = generateRoomCode(); // Generate unique room code
 
     // Create a new room object and add the creator as the first player
@@ -46,6 +51,7 @@ function createRoom(socket) {
 
     // Add the creator's socket connection to the Socket.IO room
     socket.join(roomCode);
+    socket.roomCode = roomCode; // Track the player's current room code
 
     // Send the room code back to the player who created it
     socket.emit("room-created", roomCode);
@@ -81,10 +87,20 @@ function joinRoom(socket, roomCode) {
         return;
     }
 
+    // Prevent player from unnecessarily rejoining if already in the room
+    if (socket.roomCode === roomCode) {
+        return;
+    }
+
     // Check if the room already has two players
     if (rooms[roomCode].players.length >= 2) {
         socket.emit("join-error", "Room is full");
         return;
+    }
+    
+    // Make the player leave their current room, if applicable
+    if (socket.roomCode) {
+        leaveCurrentRoom(socket);
     }
 
     // Add the player to the room data
@@ -92,10 +108,38 @@ function joinRoom(socket, roomCode) {
 
     // Add the player's socket connection to the Socket.IO room
     socket.join(roomCode);
+    socket.roomCode = roomCode; // Track the player's current room code
 
     // Confirm to the front-end that the player successfully joined
     socket.emit("room-joined", roomCode);
 
     // Display when a player has successfully joined a room
     console.log(`Player ${socket.id} joined room ${roomCode}`);
+}
+
+// Remove a player from their current multiplayer room
+function leaveCurrentRoom(socket) {
+    // Leave function if the player is not currently in a room
+    if (!socket.roomCode) {
+        return;
+    }
+
+    const roomCode = socket.roomCode; // Player's current room code
+
+    // Remove the player from the room data
+    rooms[roomCode].players = rooms[roomCode].players.filter(
+        playerId => playerId !== socket.id
+    );
+
+    // Remove the player's socket connection from the Socket.IO room
+    socket.leave(roomCode);
+
+    // Delete the room if no players remain
+    if (rooms[roomCode].players.length === 0) {
+        delete rooms[roomCode];
+        console.log(`Room ${roomCode} deleted`);
+    }
+
+    // Clear the room currently assigned to this socket
+    socket.roomCode = null;
 }

@@ -1,14 +1,21 @@
-// Import the packages needed to create the backend server
+// Import the modules and packages needed for the backend server
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
+import fs from "fs";
 
 // Create the Express app, HTTP server, and Socket.IO server
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const rooms = {}; // // Store all active multiplayer rooms by room code
+const rooms = {}; // Store all active multiplayer rooms by room code
+
+// Load the multiplayer solution words from the game word list
+const gameWords = fs.readFileSync("../data/game_words.txt", "utf-8")
+    .split(/\r?\n/)
+    .map(word => word.trim().toUpperCase())
+    .filter(word => word !== "");
 
 // Display a simple message on the root page to confirm the backend server is running
 app.get("/", (req, res) => {
@@ -79,7 +86,7 @@ function generateRoomCode() {
     return roomCode;
 }
 
-// Add a player to an existing multiplayer room
+// Add a player to an existing multiplayer room and start the game when ready
 function joinRoom(socket, roomCode) {
     // Check if the room exists
     if (!rooms[roomCode]) {
@@ -115,6 +122,9 @@ function joinRoom(socket, roomCode) {
 
     // Display when a player has successfully joined a room
     console.log(`Player ${socket.id} joined room ${roomCode}`);
+
+    // Start a multiplayer game once a room has two players
+    startMultiplayerGame(roomCode);
 }
 
 // Remove a player from their current multiplayer room
@@ -142,4 +152,19 @@ function leaveCurrentRoom(socket) {
 
     // Clear the room currently assigned to this socket
     socket.roomCode = null;
+}
+
+// Start a multiplayer game once a room has two players
+function startMultiplayerGame(roomCode) {
+    if (rooms[roomCode].players.length === 2) {
+        // Select a random solution word
+        const randomIndex = Math.floor(Math.random() * gameWords.length);
+        const secretWord = gameWords[randomIndex];
+
+        // Store the solution word in the room
+        rooms[roomCode].secretWord = secretWord;
+
+        // Tell both clients in the room to start the multiplayer game
+        io.to(roomCode).emit("game-start", secretWord);
+    }
 }

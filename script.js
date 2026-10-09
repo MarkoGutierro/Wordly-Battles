@@ -14,6 +14,7 @@ const roomCodeDisplay = document.getElementById("room-code-display"); // Multipl
 const roomCodeInput = document.getElementById("room-code-input"); //  // Room code input field
 const joinRoomButton = document.getElementById("join-room-button");// Join multiplayer room button
 const multiplayerErrorMessage = document.getElementById("multiplayer-error-message"); // Temporary multiplayer error messages
+const gameStartingMessage = document.getElementById("game-starting-message"); // Let players know a multiplayer game is starting 
 
 let currentTile = 0; // Track the current tile the player can type into
 let currentRow = 0; // Track the row the player is currently guessing on
@@ -319,4 +320,13 @@ socket.on("join-error", (message) => {
     setTimeout(() => {
         multiplayerErrorMessage.textContent = "";
     }, 2000);
+});
+
+// Start a multiplayer game once two players are connected to the same room
+socket.on("game-start", (multiplayerSecretWord) => {
+    secretWord = multiplayerSecretWord; // Use the server-selected multiplayer solution word
+
+    // Inform the player that the multiplayer game is about to begin
+    gameStartingMessage.textContent = "Opponent connected! Starting game...";
+    console.log(`Multiplayer secret word: ${secretWord}`);
 });

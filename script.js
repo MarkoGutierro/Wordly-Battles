@@ -23,6 +23,7 @@ let gameOver = false; // Tracks if game is still ongoing
 let gameWords = []; // Stores all possible solution words loaded from game_words.txt
 let possibleGuesses = []; // Stores all valid guess words loaded from possible_guesses.txt
 let secretWord = ""; // Stores the randomly selected solution for the current game
+let multiplayerMode = false; // Tracks whether the player is currently in a multiplayer match
 
 loadWordFiles(); // Load both word files before allowing the game to start
 
@@ -147,6 +148,12 @@ function handleKey(key) {
                 endMessage.textContent = "";
             }, 2000);
 
+            return;
+        }
+
+        // Send valid multiplayer guesses to the server
+        if (multiplayerMode) {
+            socket.emit("submit-guess", guess);
             return;
         }
 
@@ -322,11 +329,23 @@ socket.on("join-error", (message) => {
     }, 2000);
 });
 
-// Start a multiplayer game once two players are connected to the same room
-socket.on("game-start", (multiplayerSecretWord) => {
-    secretWord = multiplayerSecretWord; // Use the server-selected multiplayer solution word
+// Start a multiplayer game with a shared secret word once a room has two players
+socket.on("game-start", () => {
+    multiplayerMode = true; // Multiplayer flag is set to true
 
     // Inform the player that the multiplayer game is about to begin
     gameStartingMessage.textContent = "Opponent connected! Starting game...";
-    console.log(`Multiplayer secret word: ${secretWord}`);
+});
+
+// Display the result of a guess as decided by the multiplayer server
+socket.on("guess-result", (result) => {
+    const rowStart = currentRow * 5;
+
+    // Apply the server's result to each tile in the current row
+    for (let i = 0; i < 5; i++) {
+        board.children[rowStart + i].classList.add(result[i]);
+    }
+
+    // Move to the next row
+    currentRow++;
 });

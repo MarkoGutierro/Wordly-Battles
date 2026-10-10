@@ -35,6 +35,11 @@ io.on("connection", (socket) => {
     socket.on("join-room", (roomCode) => {
         joinRoom(socket, roomCode);
     });
+
+    // Check a multiplayer guess when submitted
+    socket.on("submit-guess", (guess) => {
+        checkMultiplayerGuess(socket, guess);
+    });
 });
 
 // Start the server on port 3000
@@ -154,7 +159,7 @@ function leaveCurrentRoom(socket) {
     socket.roomCode = null;
 }
 
-// Start a multiplayer game once a room has two players
+// Start a multiplayer game with a shared secret word once a room has two players
 function startMultiplayerGame(roomCode) {
     if (rooms[roomCode].players.length === 2) {
         // Select a random solution word
@@ -165,6 +170,49 @@ function startMultiplayerGame(roomCode) {
         rooms[roomCode].secretWord = secretWord;
 
         // Tell both clients in the room to start the multiplayer game
-        io.to(roomCode).emit("game-start", secretWord);
+        io.to(roomCode).emit("game-start");
     }
+}
+
+// Check a multiplayer guess against the room's solution word
+function checkMultiplayerGuess(socket, guess) {
+    const roomCode = socket.roomCode;
+
+    // Stop if the player is not in a valid room
+    if (!roomCode || !rooms[roomCode]) {
+        return;
+    }
+
+    const secretWord = rooms[roomCode].secretWord;
+    const result = []; // Array that stores the results of the player's guess
+    const remainingLetters = secretWord.split(""); // Working, mutable copy of the solution word
+
+    // First pass: mark correct letters
+    for (let i = 0; i < 5; i++) {
+        if (guess[i] === secretWord[i]) {
+            result[i] = "correct";
+            remainingLetters[i] = null; //Remove letter from array, it has been accounted for
+        }
+    }
+
+    // Second pass: mark present and absent letters
+    for (let i = 0; i < 5; i++) {
+        // Skip letters already marked as correct
+        if (result[i] === "correct") {
+            continue;
+        }
+
+        // Find the index of the guessed letter in the remaining unused letters
+        const index = remainingLetters.indexOf(guess[i]);
+
+        // If the letter was found, mark it present and use up that copy
+        if (index !== -1) {  
+            result[i] = "present";
+            remainingLetters[index] = null; //Remove letter from array, it has been accounted for
+        } else {
+            result[i] = "absent";
+        }
+    }
+
+    socket.emit("guess-result", result); // Send the guess result back to the player
 }

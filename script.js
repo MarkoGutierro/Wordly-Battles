@@ -350,3 +350,13 @@ socket.on("guess-result", ({ guess, result }) => {
     // Move to the next row
     currentRow++;
 });
+
+// Display an error when the multiplayer server rejects a guess
+socket.on("guess-error", (message) => {
+    endMessage.textContent = message; // Display the error message
+
+    // Error message only displays for 2 seconds
+    setTimeout(() => {
+        endMessage.textContent = "";
+    }, 2000);
+});

@@ -11,8 +11,14 @@ const io = new Server(server);
 
 const rooms = {}; // Store all active multiplayer rooms by room code
 
-// Load the multiplayer solution words from the game word list
+// Load the multiplayer solution words from the game words list
 const gameWords = fs.readFileSync("../data/game_words.txt", "utf-8")
+    .split(/\r?\n/)
+    .map(word => word.trim().toUpperCase())
+    .filter(word => word !== "");
+
+// Load the valid multiplayer guesses from the possible guesses list
+const possibleGuesses = fs.readFileSync("../data/possible_guesses.txt", "utf-8")
     .split(/\r?\n/)
     .map(word => word.trim().toUpperCase())
     .filter(word => word !== "");
@@ -36,9 +42,15 @@ io.on("connection", (socket) => {
         joinRoom(socket, roomCode);
     });
 
-    // Check a multiplayer guess when submitted
+    // Validate and check a multiplayer guess when submitted
     socket.on("submit-guess", (guess) => {
-        checkMultiplayerGuess(socket, guess);
+        const validatedGuess = validateMultiplayerGuess(socket, guess);
+
+        if (!validatedGuess) {
+            return;
+        }
+
+        checkMultiplayerGuess(socket, validatedGuess);
     });
 });
 
@@ -174,15 +186,41 @@ function startMultiplayerGame(roomCode) {
     }
 }
 
+// Validate and normalize a multiplayer guess before scoring it
+function validateMultiplayerGuess(socket, guess) {
+    const roomCode = socket.roomCode;
+
+    // Make sure the player is in a valid room with an active game
+    if (!roomCode || !rooms[roomCode] || !rooms[roomCode].secretWord) {
+        return null;
+    }
+
+    // Make sure the guess is a string
+    if (typeof guess !== "string") {
+        return null;
+    }
+
+    // Normalize the guess
+    guess = guess.trim().toUpperCase();
+
+    // Make sure the guess is exactly five letters
+    if (!/^[A-Z]{5}$/.test(guess)) {
+        socket.emit("guess-error", "Not a valid word");
+        return null;
+    }
+
+    // Make sure the guess exists in the valid guess list
+    if (!possibleGuesses.includes(guess)) {
+        socket.emit("guess-error", "Not a valid word");
+        return null;
+    }
+
+    return guess;
+}
+
 // Check a multiplayer guess against the room's solution word
 function checkMultiplayerGuess(socket, guess) {
     const roomCode = socket.roomCode;
-
-    // Stop if the player is not in a valid room
-    if (!roomCode || !rooms[roomCode]) {
-        return;
-    }
-
     const secretWord = rooms[roomCode].secretWord;
     const result = []; // Array that stores the results of the player's guess
     const remainingLetters = secretWord.split(""); // Working, mutable copy of the solution word

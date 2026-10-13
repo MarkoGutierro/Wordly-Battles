@@ -338,12 +338,13 @@ socket.on("game-start", () => {
 });
 
 // Display the result of a guess as decided by the multiplayer server
-socket.on("guess-result", (result) => {
+socket.on("guess-result", ({ guess, result }) => {
     const rowStart = currentRow * 5;
 
-    // Apply the server's result to each tile in the current row
+    // Apply the server's result to each tile and keyboard letter
     for (let i = 0; i < 5; i++) {
         board.children[rowStart + i].classList.add(result[i]);
+        updateKeyboard(guess[i], result[i]);
     }
 
     // Move to the next row

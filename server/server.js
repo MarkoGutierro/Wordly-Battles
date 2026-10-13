@@ -214,5 +214,5 @@ function checkMultiplayerGuess(socket, guess) {
         }
     }
 
-    socket.emit("guess-result", result); // Send the guess result back to the player
+    socket.emit("guess-result", { guess, result }); // Send the guess result back to the player
 }

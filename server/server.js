@@ -52,6 +52,22 @@ io.on("connection", (socket) => {
 
         checkMultiplayerGuess(socket, validatedGuess);
     });
+
+    // Handle a player disconnecting from the multiplayer server
+    socket.on("disconnect", () => {
+        // Remove the player from their current room, if they were in one
+        if (socket.roomCode) {
+            const roomCode = socket.roomCode;
+
+            leaveCurrentRoom(socket);
+
+            // Notify a remaining player that their opponent disconnected
+            io.to(roomCode).emit("opponent-disconnected");
+        }
+
+        // Log the player that disconnected
+        console.log("A player disconnected: ", socket.id);
+    });
 });
 
 // Start the server on port 3000

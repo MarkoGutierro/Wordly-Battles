@@ -1,4 +1,4 @@
-//Global Vars
+// Global Vars
 const board = document.getElementById("board"); // Game board
 const keyboard = document.getElementById("keyboard"); // Game keyboard
 const keyboardRows = [
@@ -6,15 +6,15 @@ const keyboardRows = [
     ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
     ["ENTER", "Z", "X", "C", "V", "B", "N", "M", "BACKSPACE"]
 ]; // Store the three rows of keyboard letters
-const endMessage = document.getElementById("end-message"); // Message when game is over
 const playAgainButton = document.getElementById("play-again"); // Get the Play Again button
 const socket = io("http://localhost:3000"); // Connect to the multiplayer server
 const multiplayerButton = document.getElementById("multiplayer-button"); // Multiplayer button
 const roomCodeDisplay = document.getElementById("room-code-display"); // Multiplayer room code
-const roomCodeInput = document.getElementById("room-code-input"); //  // Room code input field
-const joinRoomButton = document.getElementById("join-room-button");// Join multiplayer room button
-const multiplayerErrorMessage = document.getElementById("multiplayer-error-message"); // Temporary multiplayer error messages
-const gameStartingMessage = document.getElementById("game-starting-message"); // Let players know a multiplayer game is starting 
+const roomCodeInput = document.getElementById("room-code-input"); // Room code input field
+const joinRoomButton = document.getElementById("join-room-button"); // Join multiplayer room button
+const gameMessage = document.getElementById("game-message"); // Messages related to gameplay
+const roomErrorMessage = document.getElementById("room-error-message"); // Temporary room-related errors
+const multiplayerStatusMessage = document.getElementById("multiplayer-status-message"); // Current multiplayer status
 
 let currentTile = 0; // Track the current tile the player can type into
 let currentRow = 0; // Track the row the player is currently guessing on
@@ -142,10 +142,10 @@ function handleKey(key) {
 
         // Reject the guess if it is not in the valid guess list
         if (!possibleGuesses.includes(guess)) {
-            endMessage.textContent = "Not a valid word";
+            gameMessage.textContent = "Not a valid word";
 
             setTimeout(() => {
-                endMessage.textContent = "";
+                gameMessage.textContent = "";
             }, 2000);
 
             return;
@@ -249,7 +249,7 @@ function updateKeyboard(letter, status) {
 function checkGameEnd(guess) {
     //WINNER!!!
     if (guess === secretWord) {
-        endMessage.textContent = "You win!";
+        gameMessage.textContent = "You win!";
         gameOver = true;
         playAgainButton.hidden = false;
         return;
@@ -257,7 +257,7 @@ function checkGameEnd(guess) {
 
     //loser :(
     if (currentRow === 6) {
-        endMessage.textContent = `Game over! The word was ${secretWord}.`;
+        gameMessage.textContent = `Game over! The word was ${secretWord}.`;
         gameOver = true;
         playAgainButton.hidden = false;
     }
@@ -271,7 +271,7 @@ function resetBoard() {
     gameOver = false;
 
     // Clear old messages and hide the Play Again button
-    endMessage.textContent = "";
+    gameMessage.textContent = "";
     playAgainButton.hidden = true;
 
     // Reset all board tiles
@@ -326,11 +326,11 @@ socket.on("room-joined", (roomCode) => {
 
 // Display when the player fails to join a room
 socket.on("join-error", (message) => {
-    multiplayerErrorMessage.textContent = message; // Display the error message
+    roomErrorMessage.textContent = message; // Display the error message
 
     // Error message only displays for 2 seconds
     setTimeout(() => {
-        multiplayerErrorMessage.textContent = "";
+        roomErrorMessage.textContent = "";
     }, 2000);
 });
 
@@ -340,7 +340,7 @@ socket.on("game-start", () => {
     multiplayerMode = true; // Multiplayer flag is set to true
 
     // Inform the player that the multiplayer game is about to begin
-    gameStartingMessage.textContent = "Opponent connected! Starting game...";
+    multiplayerStatusMessage.textContent = "Opponent connected! Starting game...";
 });
 
 // Display the result of a guess as decided by the multiplayer server
@@ -359,10 +359,15 @@ socket.on("guess-result", ({ guess, result }) => {
 
 // Display an error when the multiplayer server rejects a guess
 socket.on("guess-error", (message) => {
-    endMessage.textContent = message; // Display the error message
+    gameMessage.textContent = message; // Display the error message
 
     // Error message only displays for 2 seconds
     setTimeout(() => {
-        endMessage.textContent = "";
+        gameMessage.textContent = "";
     }, 2000);
+});
+
+// Notify the player when their opponent disconnects
+socket.on("opponent-disconnected", () => {
+    multiplayerStatusMessage.textContent = "Opponent disconnected";
 });

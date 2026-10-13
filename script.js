@@ -263,34 +263,39 @@ function checkGameEnd(guess) {
     }
 }
 
-// Reset the game and choose a new solution word
-function playAgain() {
-    // Reset global game vars back to starting values
+// Reset the game board and keyboard back to their starting state
+function resetBoard() {
+    // Reset the player's board progress and game status
     currentTile = 0;
     currentRow = 0;
     gameOver = false;
 
-    // Generate a new solution word
-    secretWord = gameWords[Math.floor(Math.random() * gameWords.length)];
-
-    // Remove play again button and end message
+    // Clear old messages and hide the Play Again button
     endMessage.textContent = "";
     playAgainButton.hidden = true;
 
-    // Reset tile board 
+    // Reset all board tiles
     for (const tile of board.children) {
         tile.textContent = "";
         tile.classList.remove("correct", "present", "absent");
     }
 
+    // Reset all on-screen keyboard colors
     const keys = document.querySelectorAll(".key");
 
-    // Reset on-screen keyboard
     for (const key of keys) {
         key.classList.remove("correct", "present", "absent");
     }
+}
 
-    console.log(secretWord); // Display new solution word
+// Reset the game and choose a new solution word
+function playAgain() {
+    resetBoard();
+
+    // Generate a new single-player solution word
+    secretWord = gameWords[Math.floor(Math.random() * gameWords.length)];
+
+    console.log(secretWord);
 }
 
 // Confirm when the frontend connects to the multiplayer server
@@ -331,6 +336,7 @@ socket.on("join-error", (message) => {
 
 // Start a multiplayer game with a shared secret word once a room has two players
 socket.on("game-start", () => {
+    resetBoard(); // Reset the game board and keyboard back to their starting state
     multiplayerMode = true; // Multiplayer flag is set to true
 
     // Inform the player that the multiplayer game is about to begin

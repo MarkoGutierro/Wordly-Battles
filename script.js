@@ -12,6 +12,7 @@ const multiplayerButton = document.getElementById("multiplayer-button"); // Mult
 const roomCodeDisplay = document.getElementById("room-code-display"); // Multiplayer room code
 const roomCodeInput = document.getElementById("room-code-input"); // Room code input field
 const joinRoomButton = document.getElementById("join-room-button"); // Join multiplayer room button
+const leaveRoomButton = document.getElementById("leave-room-button"); // Leave multiplayer room button
 const gameMessage = document.getElementById("game-message"); // Messages related to gameplay
 const roomErrorMessage = document.getElementById("room-error-message"); // Temporary room-related errors
 const multiplayerStatusMessage = document.getElementById("multiplayer-status-message"); // Current multiplayer status
@@ -338,6 +339,7 @@ socket.on("join-error", (message) => {
 socket.on("game-start", () => {
     resetBoard(); // Reset the game board and keyboard back to their starting state
     multiplayerMode = true; // Multiplayer flag is set to true
+    leaveRoomButton.hidden = false; // Leave multiplayer room button now visible
 
     // Inform the player that the multiplayer game is about to begin
     multiplayerStatusMessage.textContent = "Opponent connected! Starting game...";
@@ -370,4 +372,23 @@ socket.on("guess-error", (message) => {
 // Notify the player when their opponent disconnects
 socket.on("opponent-disconnected", () => {
     multiplayerStatusMessage.textContent = "Opponent disconnected";
+});
+
+// Leave the current multiplayer game and return to single-player mode
+leaveRoomButton.addEventListener("click", () => {
+    socket.emit("leave-room"); // Tell the server to leave the room
+
+    multiplayerMode = false; // Reset multiplayer flag
+
+    // Remove multiplayer GUI
+    leaveRoomButton.hidden = true;
+    multiplayerStatusMessage.textContent = "";
+    roomCodeDisplay.textContent = "";
+
+    playAgain(); // Start a new single-player round
+});
+
+// Notify the player when their opponent leaves the game
+socket.on("opponent-left", () => {
+    multiplayerStatusMessage.textContent = "Opponent left the game";
 });

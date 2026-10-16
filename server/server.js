@@ -42,6 +42,18 @@ io.on("connection", (socket) => {
         joinRoom(socket, roomCode);
     });
 
+    // Leave the current multiplayer room when requested
+    socket.on("leave-room", () => {
+        if (socket.roomCode) {
+            const roomCode = socket.roomCode;
+
+            leaveCurrentRoom(socket);
+
+            // Notify the other player that their opponent left the game
+            io.to(roomCode).emit("opponent-left");
+        }
+    });
+
     // Validate and check a multiplayer guess when submitted
     socket.on("submit-guess", (guess) => {
         const validatedGuess = validateMultiplayerGuess(socket, guess);

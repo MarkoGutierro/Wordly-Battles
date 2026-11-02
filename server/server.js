@@ -98,7 +98,9 @@ function createRoom(socket) {
 
     // Create a new room object and add the creator as the first player
     rooms[roomCode] = {
-        players: [socket.id]
+        players: [socket.id],
+        secretWord: null,
+        winner: null
     };
 
     // Add the creator's socket connection to the Socket.IO room
@@ -223,6 +225,11 @@ function validateMultiplayerGuess(socket, guess) {
         return null;
     }
 
+    // Stop accepting guesses after the game already has a winner
+    if (rooms[roomCode].winner) {
+        return null;
+    }
+
     // Make sure the guess is a string
     if (typeof guess !== "string") {
         return null;
@@ -278,6 +285,19 @@ function checkMultiplayerGuess(socket, guess) {
         } else {
             result[i] = "absent";
         }
+    }
+
+    // Check if every letter in the guess is correct and store the winner
+    const isWinner = result.every(status => status === "correct");
+
+    if (isWinner && !rooms[roomCode].winner) {
+        rooms[roomCode].winner = socket.id;
+
+        // Notify the winning player
+        socket.emit("game-won");
+
+        // Notify the losing player
+        socket.to(roomCode).emit("game-lost");
     }
 
     socket.emit("guess-result", { guess, result }); // Send the guess result back to the player

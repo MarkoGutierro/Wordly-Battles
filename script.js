@@ -392,3 +392,15 @@ leaveRoomButton.addEventListener("click", () => {
 socket.on("opponent-left", () => {
     multiplayerStatusMessage.textContent = "Opponent left the game";
 });
+
+// Handle the player winning the multiplayer game
+socket.on("game-won", () => {
+    gameMessage.textContent = "You win!";
+    gameOver = true;
+});
+
+// Handle the player losing the multiplayer game
+socket.on("game-lost", () => {
+    gameMessage.textContent = "You lose!";
+    gameOver = true;
+});

@@ -394,13 +394,13 @@ socket.on("opponent-left", () => {
 });
 
 // Handle the player winning the multiplayer game
-socket.on("game-won", () => {
-    gameMessage.textContent = "You win!";
+socket.on("game-won", (message) => {
+    gameMessage.textContent = message;
     gameOver = true;
 });
 
 // Handle the player losing the multiplayer game
-socket.on("game-lost", () => {
-    gameMessage.textContent = "You lose!";
+socket.on("game-lost", (message) => {
+    gameMessage.textContent = message;
     gameOver = true;
 });

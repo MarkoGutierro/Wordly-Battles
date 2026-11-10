@@ -100,7 +100,8 @@ function createRoom(socket) {
     rooms[roomCode] = {
         players: [socket.id],
         secretWord: null,
-        winner: null
+        winner: null,
+        attemptsUsed: {}
     };
 
     // Add the creator's socket connection to the Socket.IO room
@@ -201,7 +202,7 @@ function leaveCurrentRoom(socket) {
     socket.roomCode = null;
 }
 
-// Start a multiplayer game with a shared secret word once a room has two players
+// Start a multiplayer game once a room has two players and initialize game state
 function startMultiplayerGame(roomCode) {
     if (rooms[roomCode].players.length === 2) {
         // Select a random solution word
@@ -210,6 +211,11 @@ function startMultiplayerGame(roomCode) {
 
         // Store the solution word in the room
         rooms[roomCode].secretWord = secretWord;
+
+        // Reset each player's number of attempts at the start of the game
+        for (const playerId of rooms[roomCode].players) {
+            rooms[roomCode].attemptsUsed[playerId] = 0;
+        }
 
         // Tell both clients in the room to start the multiplayer game
         io.to(roomCode).emit("game-start");
@@ -287,6 +293,9 @@ function checkMultiplayerGuess(socket, guess) {
         }
     }
 
+    // Increase the player's number of used attempts
+    rooms[roomCode].attemptsUsed[socket.id]++;
+
     // Check if every letter in the guess is correct and store the winner
     const isWinner = result.every(status => status === "correct");
 
@@ -294,10 +303,24 @@ function checkMultiplayerGuess(socket, guess) {
         rooms[roomCode].winner = socket.id;
 
         // Notify the winning player
-        socket.emit("game-won");
+        socket.emit("game-won", "You win!");
 
         // Notify the losing player
-        socket.to(roomCode).emit("game-lost");
+        socket.to(roomCode).emit("game-lost", "You lose! Your opponent guessed the word.");
+    }
+
+    // Declare the player a loser if they use all six attempts without winning
+    const MAX_ATTEMPTS = 6; // Players can not make more than 6 attempts per game
+
+    if (!isWinner && rooms[roomCode].attemptsUsed[socket.id] === MAX_ATTEMPTS) {
+        const opponentId = rooms[roomCode].players.find(
+            playerId => playerId !== socket.id
+        );
+
+        rooms[roomCode].winner = opponentId; //Room stores the opponent as the winner 
+
+        socket.emit("game-lost", "You lose! You used up all your guesses."); // Notify the losing player
+        socket.to(roomCode).emit("game-won", "You win! Your opponent used up all their guesses."); // Notify the winning player
     }
 
     socket.emit("guess-result", { guess, result }); // Send the guess result back to the player

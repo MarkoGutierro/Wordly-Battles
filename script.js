@@ -1,42 +1,64 @@
-// Global Vars
-const board = document.getElementById("board"); // Game board
-const keyboard = document.getElementById("keyboard"); // Game keyboard
-const keyboardRows = [
+// Game configuration
+const WORD_LENGTH = 5; // Number of letters in each word
+const MAX_ATTEMPTS = 6; // Maximum number of guesses allowed per game
+const TOTAL_TILES = WORD_LENGTH * MAX_ATTEMPTS; // Total number of tiles on each game board
+
+const KEYBOARD_ROWS = [
     ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
     ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
     ["ENTER", "Z", "X", "C", "V", "B", "N", "M", "BACKSPACE"]
-]; // Store the three rows of keyboard letters
-const playAgainButton = document.getElementById("play-again"); // Get the Play Again button
-const socket = io("http://localhost:3000"); // Connect to the multiplayer server
+]; // Store the three rows of on-screen keyboard keys
+
+// Game elements
+const board = document.getElementById("board"); // Main game board
+const opponentBoard = document.getElementById("opponent-board"); // Opponent's multiplayer board
+const keyboard = document.getElementById("keyboard"); // On-screen game keyboard
+const playAgainButton = document.getElementById("play-again"); // Play Again button
+const gameMessage = document.getElementById("game-message"); // Messages related to gameplay
+
+// Multiplayer elements
 const multiplayerButton = document.getElementById("multiplayer-button"); // Multiplayer button
-const roomCodeDisplay = document.getElementById("room-code-display"); // Multiplayer room code
+const roomCodeDisplay = document.getElementById("room-code-display"); // Displays the current multiplayer room code
 const roomCodeInput = document.getElementById("room-code-input"); // Room code input field
 const joinRoomButton = document.getElementById("join-room-button"); // Join multiplayer room button
 const leaveRoomButton = document.getElementById("leave-room-button"); // Leave multiplayer room button
-const gameMessage = document.getElementById("game-message"); // Messages related to gameplay
-const roomErrorMessage = document.getElementById("room-error-message"); // Temporary room-related errors
-const multiplayerStatusMessage = document.getElementById("multiplayer-status-message"); // Current multiplayer status
+const roomErrorMessage = document.getElementById("room-error-message"); // Temporary room-related error messages
+const multiplayerStatusMessage = document.getElementById("multiplayer-status-message"); // Current multiplayer status message
 
+// Multiplayer connection
+const socket = io("http://localhost:3000"); // Connect to the multiplayer server
+
+// Game state
 let currentTile = 0; // Track the current tile the player can type into
-let currentRow = 0; // Track the row the player is currently guessing on
-let filesReady = false; // Tracks whether both word files have finished loading
-let gameOver = false; // Tracks if game is still ongoing
-let gameWords = []; // Stores all possible solution words loaded from game_words.txt
-let possibleGuesses = []; // Stores all valid guess words loaded from possible_guesses.txt
-let secretWord = ""; // Stores the randomly selected solution for the current game
-let multiplayerMode = false; // Tracks whether the player is currently in a multiplayer match
+let currentRow = 0; // Track the player's current guess row
+let opponentRow = 0; // Track the opponent's current guess row
+let filesReady = false; // Track whether both word files have finished loading
+let gameOver = false; // Track whether the current game has ended
+let multiplayerMode = false; // Track whether the player is currently in multiplayer mode
+
+// Word data
+let gameWords = []; // Store all possible solution words loaded from game_words.txt
+let possibleGuesses = []; // Store all valid guesses loaded from possible_guesses.txt
+let secretWord = ""; // Store the randomly selected single-player solution word
 
 loadWordFiles(); // Load both word files before allowing the game to start
 
 // Generate the game board
-for (let i = 0; i < 30; i++) {
+for (let i = 0; i < TOTAL_TILES; i++) {
     const tile = document.createElement("div");
     tile.classList.add("tile");
     board.appendChild(tile);
 }
 
+// Create the opponent's game board
+for (let i = 0; i < TOTAL_TILES; i++) {
+    const tile = document.createElement("div");
+    tile.classList.add("opponent-tile");
+    opponentBoard.appendChild(tile);
+}
+
 // Generate the on-screen game keyboard
-for (const row of keyboardRows) {
+for (const row of KEYBOARD_ROWS) {
     const rowDiv = document.createElement("div");
     rowDiv.classList.add("keyboard-row");
 
@@ -125,19 +147,19 @@ function handleKey(key) {
     key = key.toUpperCase();
 
     // Backspace: go back one tile
-    if (key === "BACKSPACE" && currentTile > currentRow * 5) {
+    if (key === "BACKSPACE" && currentTile > currentRow * WORD_LENGTH) {
         currentTile--;
         board.children[currentTile].textContent = "";
         return;
     }
 
     // Enter: submit guesses and call the checkGameEnd function to see if the game is over
-    if (key === "ENTER" && currentTile === (currentRow + 1) * 5) {
+    if (key === "ENTER" && currentTile === (currentRow + 1) * WORD_LENGTH) {
         let guess = "";
-        const rowStart = currentRow * 5;
+        const rowStart = currentRow * WORD_LENGTH;
 
         //Concatenate the guess into a string
-        for (let i = rowStart; i < rowStart + 5; i++) {
+        for (let i = rowStart; i < rowStart + WORD_LENGTH; i++) {
             guess += board.children[i].textContent;
         }
 
@@ -172,8 +194,8 @@ function handleKey(key) {
     // Letters: enter a letter into a tile
     if (
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ".includes(key) &&
-        currentTile < (currentRow + 1) * 5 &&
-        currentRow < 6
+        currentTile < (currentRow + 1) * WORD_LENGTH &&
+        currentRow < MAX_ATTEMPTS
     ) {
         board.children[currentTile].textContent = key;
         currentTile++;
@@ -182,11 +204,11 @@ function handleKey(key) {
 
 // Check if guess is correct or not and change tile colors accordingly 
 function checkGuess(guess) {
-    const rowStart = currentRow * 5;
+    const rowStart = currentRow * WORD_LENGTH;
     const remainingLetters = secretWord.split(""); // Convert the secret word into an array of individual letters
 
     // First pass: mark correct letters
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < WORD_LENGTH; i++) {
         const tile = board.children[rowStart + i];
 
         if (guess[i] === secretWord[i]) {
@@ -197,7 +219,7 @@ function checkGuess(guess) {
     }
 
     // Second pass: mark present or absent letters
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < WORD_LENGTH; i++) {
         const tile = board.children[rowStart + i];
 
         //Letter correct, skip to next loop iteration
@@ -257,18 +279,19 @@ function checkGameEnd(guess) {
     }
 
     //loser :(
-    if (currentRow === 6) {
+    if (currentRow === MAX_ATTEMPTS) {
         gameMessage.textContent = `Game over! The word was ${secretWord}.`;
         gameOver = true;
         playAgainButton.hidden = false;
     }
 }
 
-// Reset the game board and keyboard back to their starting state
+// Reset the game boards and keyboard back to their starting state
 function resetBoard() {
-    // Reset the player's board progress and game status
+    // Reset the progress of both game boards and the game status
     currentTile = 0;
     currentRow = 0;
+    opponentRow = 0;
     gameOver = false;
 
     // Clear old messages and hide the Play Again button
@@ -278,6 +301,11 @@ function resetBoard() {
     // Reset all board tiles
     for (const tile of board.children) {
         tile.textContent = "";
+        tile.classList.remove("correct", "present", "absent");
+    }
+
+    // Reset all opponent board tiles
+    for (const tile of opponentBoard.children) {
         tile.classList.remove("correct", "present", "absent");
     }
 
@@ -340,6 +368,7 @@ socket.on("game-start", () => {
     resetBoard(); // Reset the game board and keyboard back to their starting state
     multiplayerMode = true; // Multiplayer flag is set to true
     leaveRoomButton.hidden = false; // Leave multiplayer room button now visible
+    opponentBoard.hidden = false; // Reveal opponent's game board
 
     // Inform the player that the multiplayer game is about to begin
     multiplayerStatusMessage.textContent = "Opponent connected! Starting game...";
@@ -347,10 +376,10 @@ socket.on("game-start", () => {
 
 // Display the result of a guess as decided by the multiplayer server
 socket.on("guess-result", ({ guess, result }) => {
-    const rowStart = currentRow * 5;
+    const rowStart = currentRow * WORD_LENGTH;
 
     // Apply the server's result to each tile and keyboard letter
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < WORD_LENGTH; i++) {
         board.children[rowStart + i].classList.add(result[i]);
         updateKeyboard(guess[i], result[i]);
     }
@@ -369,6 +398,19 @@ socket.on("guess-error", (message) => {
     }, 2000);
 });
 
+// Update the opponent board when they make a guess
+socket.on("opponent-guess-result", (result) => {
+    const rowStart = opponentRow * WORD_LENGTH;
+
+    // Apply the server's result to each tile
+    for (let i = 0; i < WORD_LENGTH; i++) {
+        opponentBoard.children[rowStart + i].classList.add(result[i]);
+    }
+
+    // Move to the next row
+    opponentRow++;
+});
+
 // Notify the player when their opponent disconnects
 socket.on("opponent-disconnected", () => {
     multiplayerStatusMessage.textContent = "Opponent disconnected";
@@ -382,6 +424,7 @@ leaveRoomButton.addEventListener("click", () => {
 
     // Remove multiplayer GUI
     leaveRoomButton.hidden = true;
+    opponentBoard.hidden = true;
     multiplayerStatusMessage.textContent = "";
     roomCodeDisplay.textContent = "";
 

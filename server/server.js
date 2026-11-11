@@ -261,13 +261,14 @@ function validateMultiplayerGuess(socket, guess) {
 
 // Check a multiplayer guess against the room's solution word
 function checkMultiplayerGuess(socket, guess) {
+    const WORD_LENGTH = 5; // Number of letters in each word
     const roomCode = socket.roomCode;
     const secretWord = rooms[roomCode].secretWord;
     const result = []; // Array that stores the results of the player's guess
     const remainingLetters = secretWord.split(""); // Working, mutable copy of the solution word
 
     // First pass: mark correct letters
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < WORD_LENGTH; i++) {
         if (guess[i] === secretWord[i]) {
             result[i] = "correct";
             remainingLetters[i] = null; //Remove letter from array, it has been accounted for
@@ -275,7 +276,7 @@ function checkMultiplayerGuess(socket, guess) {
     }
 
     // Second pass: mark present and absent letters
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < WORD_LENGTH; i++) {
         // Skip letters already marked as correct
         if (result[i] === "correct") {
             continue;
@@ -323,5 +324,9 @@ function checkMultiplayerGuess(socket, guess) {
         socket.to(roomCode).emit("game-won", "You win! Your opponent used up all their guesses."); // Notify the winning player
     }
 
-    socket.emit("guess-result", { guess, result }); // Send the guess result back to the player
+    // Send the guess result back to the player
+    socket.emit("guess-result", { guess, result }); 
+
+    // Send the guess result to the opponent without revealing the letters
+    socket.to(roomCode).emit("opponent-guess-result", result); 
 }

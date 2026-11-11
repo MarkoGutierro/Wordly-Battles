@@ -4,10 +4,29 @@ body {
     align-items: center;
 }
 
+/* Game Board Classes */
+
+.boards-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+}
+
 .board {
     display: grid;
     grid-template-columns: repeat(5, 60px);
     gap: 5px;
+}
+
+.opponent-board {
+    display: grid;
+    grid-template-columns: repeat(5, 20px);
+    gap: 2px;
+}
+
+.opponent-board[hidden] {
+    display: none;
 }
 
 .tile {
@@ -21,6 +40,12 @@ body {
 
     font-size: 32px;
     font-weight: bold;
+}
+
+.opponent-tile {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ccc;
 }
 
 /* Start Guesses Classes */

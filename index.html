@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Header, game messages, and multiplayer controls -->
     <h1>Wordly Battles</h1>
     <button id="multiplayer-button">Multiplayer</button>
     <p id="room-code-display"></p>
@@ -16,10 +17,18 @@
     <p id="multiplayer-status-message"></p>
     <input id="room-code-input" type="text" placeholder="Enter room code">
     <button id="join-room-button">Join Room</button>
-    <div class="board" id="board"></div>
+
+    <!-- Game boards -->
+    <div class="boards-container">
+        <div class="board" id="board"></div>
+        <div class="opponent-board" id="opponent-board" hidden></div>
+    </div>
+
+    <!-- Play again button and on-screen keyboard -->
     <button id="play-again" hidden>Play Again</button>
     <div class="keyboard" id="keyboard"></div>
 
+    <!-- Scripts -->
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
 </body>

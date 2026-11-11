@@ -259,11 +259,30 @@ function validateMultiplayerGuess(socket, guess) {
     return guess;
 }
 
-// Check a multiplayer guess against the room's solution word
+// Update the game state based on the player's guess
 function checkMultiplayerGuess(socket, guess) {
-    const WORD_LENGTH = 5; // Number of letters in each word
     const roomCode = socket.roomCode;
     const secretWord = rooms[roomCode].secretWord;
+
+    // Score the multiplayer guess against the room's solution word
+    const result = scoreMultiplayerGuess(guess, secretWord);
+
+    // Track the player's number of used attempts
+    increaseMultiplayerAttempts(socket, roomCode);
+
+    // Check whether the game has ended
+    handleMultiplayerGameEnd(socket, roomCode, result);
+
+    // Send the guess result back to the player
+    socket.emit("guess-result", { guess, result });
+
+    // Send the guess result to the opponent without revealing the letters
+    socket.to(roomCode).emit("opponent-guess-result", result);
+}
+
+// Score a multiplayer guess against the room's solution word
+function scoreMultiplayerGuess(guess, secretWord) {
+    const WORD_LENGTH = 5; // Number of letters in each word
     const result = []; // Array that stores the results of the player's guess
     const remainingLetters = secretWord.split(""); // Working, mutable copy of the solution word
 
@@ -271,7 +290,7 @@ function checkMultiplayerGuess(socket, guess) {
     for (let i = 0; i < WORD_LENGTH; i++) {
         if (guess[i] === secretWord[i]) {
             result[i] = "correct";
-            remainingLetters[i] = null; //Remove letter from array, it has been accounted for
+            remainingLetters[i] = null; // Remove letter from array, it has been accounted for
         }
     }
 
@@ -286,47 +305,58 @@ function checkMultiplayerGuess(socket, guess) {
         const index = remainingLetters.indexOf(guess[i]);
 
         // If the letter was found, mark it present and use up that copy
-        if (index !== -1) {  
+        if (index !== -1) {
             result[i] = "present";
-            remainingLetters[index] = null; //Remove letter from array, it has been accounted for
+            remainingLetters[index] = null; // Remove letter from array, it has been accounted for
         } else {
             result[i] = "absent";
         }
     }
 
-    // Increase the player's number of used attempts
+    return result;
+}
+
+// Increase the player's number of used attempts
+function increaseMultiplayerAttempts(socket, roomCode) {
     rooms[roomCode].attemptsUsed[socket.id]++;
+}
 
-    // Check if every letter in the guess is correct and store the winner
-    const isWinner = result.every(status => status === "correct");
+// Check whether the multiplayer game has ended
+function handleMultiplayerGameEnd(socket, roomCode, result) {
+    const MAX_ATTEMPTS = 6; // Players cannot make more than 6 attempts per game
+    const isWinner = result.every(status => status === "correct"); // Check if every letter in the guess is correct
 
+    // Player guessed the word correctly
     if (isWinner && !rooms[roomCode].winner) {
         rooms[roomCode].winner = socket.id;
 
-        // Notify the winning player
+        // Notify both players
         socket.emit("game-won", "You win!");
+        socket.to(roomCode).emit(
+            "game-lost",
+            "You lose! Your opponent guessed the word."
+        );
 
-        // Notify the losing player
-        socket.to(roomCode).emit("game-lost", "You lose! Your opponent guessed the word.");
+        return;
     }
 
-    // Declare the player a loser if they use all six attempts without winning
-    const MAX_ATTEMPTS = 6; // Players can not make more than 6 attempts per game
-
+    // Player used all six attempts without winning
     if (!isWinner && rooms[roomCode].attemptsUsed[socket.id] === MAX_ATTEMPTS) {
         const opponentId = rooms[roomCode].players.find(
             playerId => playerId !== socket.id
         );
 
-        rooms[roomCode].winner = opponentId; //Room stores the opponent as the winner 
+        rooms[roomCode].winner = opponentId; // Room stores the opponent as the winner
 
-        socket.emit("game-lost", "You lose! You used up all your guesses."); // Notify the losing player
-        socket.to(roomCode).emit("game-won", "You win! Your opponent used up all their guesses."); // Notify the winning player
+        // Notify both players
+        socket.emit(
+            "game-lost",
+            "You lose! You used up all your guesses."
+        );
+
+        socket.to(roomCode).emit(
+            "game-won",
+            "You win! Your opponent used up all their guesses."
+        );
     }
-
-    // Send the guess result back to the player
-    socket.emit("guess-result", { guess, result }); 
-
-    // Send the guess result to the opponent without revealing the letters
-    socket.to(roomCode).emit("opponent-guess-result", result); 
 }

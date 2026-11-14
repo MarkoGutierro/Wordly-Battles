@@ -296,7 +296,7 @@ function checkMultiplayerGuess(socket, guess) {
     increaseMultiplayerAttempts(socket, roomCode);
 
     // Check whether the game has ended
-    handleMultiplayerGameEnd(socket, roomCode, result);
+    handleMultiplayerGameEnd(socket, roomCode, result, secretWord);
 
     // Send the guess result back to the player
     socket.emit("guess-result", { guess, result });
@@ -347,7 +347,7 @@ function increaseMultiplayerAttempts(socket, roomCode) {
 }
 
 // Check whether the multiplayer game has ended
-function handleMultiplayerGameEnd(socket, roomCode, result) {
+function handleMultiplayerGameEnd(socket, roomCode, result, secretWord) {
     const MAX_ATTEMPTS = 6; // Players cannot make more than 6 attempts per game
     const isWinner = result.every(status => status === "correct"); // Check if every letter in the guess is correct
 
@@ -356,10 +356,10 @@ function handleMultiplayerGameEnd(socket, roomCode, result) {
         rooms[roomCode].winner = socket.id;
 
         // Notify both players
-        socket.emit("game-won", "You win!");
+        socket.emit("game-won", `You win! The word was ${secretWord}.`);
         socket.to(roomCode).emit(
             "game-lost",
-            "You lose! Your opponent guessed the word."
+            `You lose! Your opponent guessed the word. The word was ${secretWord}.`
         );
 
         return;
@@ -376,12 +376,12 @@ function handleMultiplayerGameEnd(socket, roomCode, result) {
         // Notify both players
         socket.emit(
             "game-lost",
-            "You lose! You used up all your guesses."
+            `You lose! You used up all your guesses. The word was ${secretWord}.`
         );
 
         socket.to(roomCode).emit(
             "game-won",
-            "You win! Your opponent used up all their guesses."
+            `You win! Your opponent used up all their guesses. The word was ${secretWord}.`
         );
     }
 }

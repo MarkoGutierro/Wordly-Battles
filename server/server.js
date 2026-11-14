@@ -54,17 +54,6 @@ io.on("connection", (socket) => {
         }
     });
 
-    // Validate and check a multiplayer guess when submitted
-    socket.on("submit-guess", (guess) => {
-        const validatedGuess = validateMultiplayerGuess(socket, guess);
-
-        if (!validatedGuess) {
-            return;
-        }
-
-        checkMultiplayerGuess(socket, validatedGuess);
-    });
-
     // Handle a player disconnecting from the multiplayer server
     socket.on("disconnect", () => {
         // Remove the player from their current room, if they were in one
@@ -79,6 +68,40 @@ io.on("connection", (socket) => {
 
         // Log the player that disconnected
         console.log("A player disconnected: ", socket.id);
+    });
+
+    // Validate and check a multiplayer guess when submitted
+    socket.on("submit-guess", (guess) => {
+        const validatedGuess = validateMultiplayerGuess(socket, guess);
+
+        if (!validatedGuess) {
+            return;
+        }
+
+        checkMultiplayerGuess(socket, validatedGuess);
+    });
+
+    // Handle a player's rematch request and restart once both players are ready
+    socket.on("request-rematch", () => {
+        const roomCode = socket.roomCode;
+
+        // Make sure the player is still in a valid room
+        if (!roomCode || !rooms[roomCode]) {
+            return;
+        }
+
+        // Rematch can only be requested once
+        if (!rooms[roomCode].rematchReady.includes(socket.id)) {
+            rooms[roomCode].rematchReady.push(socket.id);
+
+            // Notify the opponent that a rematch was requested
+            socket.to(roomCode).emit("rematch-requested");
+        }
+
+        // Start a new game once both players are ready
+        if (rooms[roomCode].rematchReady.length === 2) {
+            startMultiplayerGame(roomCode);
+        }
     });
 });
 
@@ -100,8 +123,9 @@ function createRoom(socket) {
     rooms[roomCode] = {
         players: [socket.id],
         secretWord: null,
+        attemptsUsed: {},
         winner: null,
-        attemptsUsed: {}
+        rematchReady: []
     };
 
     // Add the creator's socket connection to the Socket.IO room
@@ -209,8 +233,9 @@ function startMultiplayerGame(roomCode) {
         const randomIndex = Math.floor(Math.random() * gameWords.length);
         const secretWord = gameWords[randomIndex];
 
-        // Store the solution word in the room
-        rooms[roomCode].secretWord = secretWord;
+        rooms[roomCode].secretWord = secretWord; // Store the solution word in the room
+        rooms[roomCode].winner = null; // Match starts with no winner
+        rooms[roomCode].rematchReady = []; // Rematch state cleared
 
         // Reset each player's number of attempts at the start of the game
         for (const playerId of rooms[roomCode].players) {

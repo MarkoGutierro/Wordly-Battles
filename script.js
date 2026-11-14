@@ -128,8 +128,17 @@ document.addEventListener("keydown", function(event) {
     handleKey(event.key);
 });
 
-// Start a new round when the play again button is clicked
-playAgainButton.addEventListener("click", playAgain);
+// Start a new single-player round or request a multiplayer rematch
+playAgainButton.addEventListener("click", () => {
+    if (multiplayerMode) {
+        socket.emit("request-rematch");
+
+        playAgainButton.hidden = true;
+        multiplayerStatusMessage.textContent = "Waiting for opponent to accept rematch...";
+    } else {
+        playAgain();
+    }
+});
 
 // Handle all game key input
 function handleKey(key) {
@@ -370,8 +379,17 @@ socket.on("game-start", () => {
     leaveRoomButton.hidden = false; // Leave multiplayer room button now visible
     opponentBoard.hidden = false; // Reveal opponent's game board
 
-    // Inform the player that the multiplayer game is about to begin
-    multiplayerStatusMessage.textContent = "Opponent connected! Starting game...";
+    // Inform the player that the multiplayer game has begun
+    multiplayerStatusMessage.textContent = "Game started!";
+    multiplayerStatusMessage.style.fontWeight = "bold";
+
+    // Clear the temporary game start message after 5 seconds
+    setTimeout(() => {
+        if (multiplayerStatusMessage.textContent === "Game started!") {
+            multiplayerStatusMessage.textContent = "";
+            multiplayerStatusMessage.style.fontWeight = "";
+        }
+    }, 5000);
 });
 
 // Display the result of a guess as decided by the multiplayer server
@@ -440,10 +458,17 @@ socket.on("opponent-left", () => {
 socket.on("game-won", (message) => {
     gameMessage.textContent = message;
     gameOver = true;
+    playAgainButton.hidden = false;
 });
 
 // Handle the player losing the multiplayer game
 socket.on("game-lost", (message) => {
     gameMessage.textContent = message;
     gameOver = true;
+    playAgainButton.hidden = false;
+});
+
+// Notify the player that their multiplayer opponent requested a rematch
+socket.on("rematch-requested", () => {
+    multiplayerStatusMessage.textContent = "Opponent requested a rematch.";
 });

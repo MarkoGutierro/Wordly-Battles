@@ -34,14 +34,28 @@ main {
     gap: 4px;
 }
 
+.opponent-board-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: calc(5 * clamp(8px, 2.5vw, 23px) + 8px);
+}
+
+.opponent-board-container[hidden] {
+    display: none;
+}
+
+.opponent-board-container h2 {
+    font-size: clamp(0.75rem, 2.5vw, 0.85rem);
+    margin: 5px 0;
+    text-align: center;
+    overflow-wrap: break-word;
+}
+
 .opponent-board {
     display: grid;
     grid-template-columns: repeat(5, clamp(8px, 2.5vw, 23px));
     gap: 2px;
-}
-
-.opponent-board[hidden] {
-    display: none;
 }
 
 .tile {

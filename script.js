@@ -11,6 +11,7 @@ const KEYBOARD_ROWS = [
 
 // Game elements
 const board = document.getElementById("board"); // Main game board
+const opponentBoardContainer = document.querySelector(".opponent-board-container"); // Contains opponent's board and heading
 const opponentBoard = document.getElementById("opponent-board"); // Opponent's multiplayer board
 const keyboard = document.getElementById("keyboard"); // On-screen game keyboard
 const playAgainButton = document.getElementById("play-again"); // Play Again button
@@ -377,7 +378,7 @@ socket.on("game-start", () => {
     resetBoard(); // Reset the game board and keyboard back to their starting state
     multiplayerMode = true; // Multiplayer flag is set to true
     leaveRoomButton.hidden = false; // Leave multiplayer room button now visible
-    opponentBoard.hidden = false; // Reveal opponent's game board
+    opponentBoardContainer.hidden = false; // Reveal opponent's game board
 
     // Inform the player that the multiplayer game has begun
     multiplayerStatusMessage.textContent = "Game started!";
@@ -444,7 +445,7 @@ leaveRoomButton.addEventListener("click", () => {
 
     // Remove multiplayer GUI
     leaveRoomButton.hidden = true;
-    opponentBoard.hidden = true;
+    opponentBoardContainer.hidden = true;
     multiplayerStatusMessage.textContent = "";
     roomCodeDisplay.textContent = "";
 

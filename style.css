@@ -14,18 +14,18 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 40px;
+    gap: clamp(8px, 3vw, 40px);
 }
 
 .board {
     display: grid;
-    grid-template-columns: repeat(5, 60px);
-    gap: 5px;
+    grid-template-columns: repeat(5, clamp(44px, 12vw, 68px));
+    gap: 4px;
 }
 
 .opponent-board {
     display: grid;
-    grid-template-columns: repeat(5, 20px);
+    grid-template-columns: repeat(5, clamp(8px, 2.5vw, 23px));
     gap: 2px;
 }
 
@@ -34,21 +34,21 @@ body {
 }
 
 .tile {
-    width: 60px;
-    height: 60px;
+    width: clamp(44px, 12vw, 68px);
+    height: clamp(44px, 12vw, 68px);
     border: 2px solid #999;
 
     display: flex;
     justify-content: center;
     align-items: center;
 
-    font-size: 32px;
+    font-size: clamp(1.5rem, 6vw, 2.25rem);
     font-weight: bold;
 }
 
 .opponent-tile {
-    width: 20px;
-    height: 20px;
+    width: clamp(8px, 2.5vw, 23px);
+    height: clamp(8px, 2.5vw, 23px);
     border: 1px solid #ccc;
 }
 
@@ -76,19 +76,20 @@ body {
 .keyboard-row {
     display: flex;
     justify-content: center;
-    gap: 5px;
+    gap: clamp(2px, 0.8vw, 5px);
     margin-bottom: 5px;
 }
 
 .key {
-    width: 40px;
-    height: 55px;
-    font-size: 18px;
+    width: clamp(27px, 8.2vw, 40px);
+    height: clamp(45px, 12vw, 55px);
+    font-size: clamp(0.9rem, 4vw, 1.125rem);
     font-weight: bold;
 }
 
 .wide-key {
-    width: 80px;
+    width: clamp(52px, 17vw, 80px);
+    font-size: clamp(0.75rem, 3vw, 1rem);
 }
 /* End Keyboard Classes */
 
@@ -106,8 +107,18 @@ body {
     margin: 0;
 }
 
+.create-room-controls,
+.join-room-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
 #game-message:not(:empty) {
     margin-top: 16px;
     font-size: 1.5rem;
     font-weight: bold;
+    text-align: center;
 }

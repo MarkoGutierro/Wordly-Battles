@@ -7,7 +7,14 @@ import fs from "fs";
 // Create the Express app, HTTP server, and Socket.IO server
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+    cors: {
+        origin: [
+            "http://127.0.0.1:3001",
+            "http://localhost:3001"
+        ]
+    }
+});
 
 const rooms = {}; // Store all active multiplayer rooms by room code
 

@@ -125,7 +125,7 @@ button, input {
     background-color: #3a3a3c;
 }
 
-/* Game Controls and Status Messages */
+/* Game Controls Styling */
 
 .game-controls {
     display: flex;
@@ -148,8 +148,21 @@ button, input {
     gap: 4px;
 }
 
+/* Status Message Styling */
+
 #game-message:not(:empty) {
     margin-top: 16px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.game-start-message {
+    font-weight: bold;
+    font-size: 2rem;
+}
+
+.opponent-departure-message {
     font-size: 1.5rem;
     font-weight: bold;
     text-align: center;

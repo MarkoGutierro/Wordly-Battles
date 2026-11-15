@@ -98,6 +98,11 @@ io.on("connection", (socket) => {
             return;
         }
 
+        // Rematch can only be requested if both players are still present
+        if (rooms[roomCode].players.length !== MAX_PLAYERS) {
+            return;
+        }
+
         // Rematch can only be requested once
         if (!rooms[roomCode].rematchReady.includes(socket.id)) {
             rooms[roomCode].rematchReady.push(socket.id);

@@ -36,6 +36,7 @@ let opponentRow = 0; // Track the opponent's current guess row
 let filesReady = false; // Track whether both word files have finished loading
 let gameOver = false; // Track whether the current game has ended
 let multiplayerMode = false; // Track whether the player is currently in multiplayer mode
+let opponentPresent = false; // Track whether the multiplayer opponent is still present
 
 // Word data
 let gameWords = []; // Store all possible solution words loaded from game_words.txt
@@ -379,19 +380,20 @@ socket.on("game-start", () => {
     multiplayerMode = true; // Multiplayer flag is set to true
     leaveRoomButton.hidden = false; // Leave multiplayer room button now visible
     opponentBoardContainer.hidden = false; // Reveal opponent's game board
+    opponentPresent = true; // Marks that the multiplayer opponent is present
 
     // Inform the player that the multiplayer game has begun
+    multiplayerStatusMessage.classList.remove("opponent-departure-message");
     multiplayerStatusMessage.textContent = "Game started!";
-    multiplayerStatusMessage.style.fontWeight = "bold";
-    multiplayerStatusMessage.style.fontSize = "2rem";
+    multiplayerStatusMessage.classList.add("game-start-message");
 
     // Clear the temporary game start message after 5 seconds
     setTimeout(() => {
         if (multiplayerStatusMessage.textContent === "Game started!") {
             multiplayerStatusMessage.textContent = "";
-            multiplayerStatusMessage.style.fontWeight = "";
-            multiplayerStatusMessage.style.fontSize = "";
         }
+
+        multiplayerStatusMessage.classList.remove("game-start-message");
     }, 5000);
 });
 
@@ -434,7 +436,11 @@ socket.on("opponent-guess-result", (result) => {
 
 // Notify the player when their opponent disconnects
 socket.on("opponent-disconnected", () => {
+    opponentPresent = false;
     multiplayerStatusMessage.textContent = "Opponent disconnected";
+    multiplayerStatusMessage.classList.remove("game-start-message");
+    multiplayerStatusMessage.classList.add("opponent-departure-message");
+    playAgainButton.hidden = true;
 });
 
 // Leave the current multiplayer game and return to single-player mode
@@ -447,6 +453,7 @@ leaveRoomButton.addEventListener("click", () => {
     leaveRoomButton.hidden = true;
     opponentBoardContainer.hidden = true;
     multiplayerStatusMessage.textContent = "";
+    multiplayerStatusMessage.classList.remove("game-start-message", "opponent-departure-message");
     roomCodeDisplay.textContent = "";
 
     playAgain(); // Start a new single-player round
@@ -454,7 +461,11 @@ leaveRoomButton.addEventListener("click", () => {
 
 // Notify the player when their opponent leaves the game
 socket.on("opponent-left", () => {
+    opponentPresent = false;
     multiplayerStatusMessage.textContent = "Opponent left the game";
+    multiplayerStatusMessage.classList.remove("game-start-message");
+    multiplayerStatusMessage.classList.add("opponent-departure-message");
+    playAgainButton.hidden = true;
 });
 
 // Handle the player winning the multiplayer game
@@ -468,7 +479,7 @@ socket.on("game-won", (message) => {
 socket.on("game-lost", (message) => {
     gameMessage.textContent = message;
     gameOver = true;
-    playAgainButton.hidden = false;
+    playAgainButton.hidden = !opponentPresent;
 });
 
 // Notify the player that their multiplayer opponent requested a rematch

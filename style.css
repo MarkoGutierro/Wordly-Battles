@@ -1,3 +1,8 @@
+/* General Styling */
+:root {
+    color-scheme: dark;
+}
+
 body {
     display: flex;
     flex-direction: column;
@@ -8,7 +13,7 @@ body {
     display: none;
 }
 
-/* Game Board Classes */
+/* Game Board Styling */
 
 .boards-container {
     display: flex;
@@ -52,22 +57,7 @@ body {
     border: 1px solid #ccc;
 }
 
-/* Start Guesses Classes */
-
-.correct {
-    background-color: green;
-}
-
-.present {
-    background-color: goldenrod;
-}
-
-.absent {
-    background-color: gray;
-}
-/* End Guesses Classes */
-
-/* Start Keyboard Classes */
+/* Keyboard Styling */
 
 .keyboard {
     margin-top: 20px;
@@ -85,15 +75,32 @@ body {
     height: clamp(45px, 12vw, 55px);
     font-size: clamp(0.9rem, 4vw, 1.125rem);
     font-weight: bold;
+    background-color: #737577;
+
+    border: 1.5px solid #999;
+    border-radius: 4px;
 }
 
 .wide-key {
     width: clamp(52px, 17vw, 80px);
     font-size: clamp(0.75rem, 3vw, 1rem);
 }
-/* End Keyboard Classes */
 
-/* Game controls and status messages section */
+/* Guess Attempt Feedback Colors */
+
+.correct {
+    background-color: green;
+}
+
+.present {
+    background-color: goldenrod;
+}
+
+.absent {
+    background-color: #3a3a3c;
+}
+
+/* Game Controls and Status Messages */
 
 .game-controls {
     display: flex;

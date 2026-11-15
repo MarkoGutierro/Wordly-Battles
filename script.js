@@ -382,12 +382,14 @@ socket.on("game-start", () => {
     // Inform the player that the multiplayer game has begun
     multiplayerStatusMessage.textContent = "Game started!";
     multiplayerStatusMessage.style.fontWeight = "bold";
+    multiplayerStatusMessage.style.fontSize = "2rem";
 
     // Clear the temporary game start message after 5 seconds
     setTimeout(() => {
         if (multiplayerStatusMessage.textContent === "Game started!") {
             multiplayerStatusMessage.textContent = "";
             multiplayerStatusMessage.style.fontWeight = "";
+            multiplayerStatusMessage.style.fontSize = "";
         }
     }, 5000);
 });

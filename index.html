@@ -7,16 +7,38 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Header, game messages, and multiplayer controls -->
+    <!-- Page Header -->
     <h1>Wordly Battles</h1>
-    <button id="multiplayer-button">Multiplayer</button>
-    <p id="room-code-display"></p>
-    <button id="leave-room-button" hidden>Leave Game</button>
-    <p id="game-message"></p>
-    <p id="room-error-message"></p>
-    <p id="multiplayer-status-message"></p>
-    <input id="room-code-input" type="text" placeholder="Enter room code">
-    <button id="join-room-button">Join Room</button>
+
+    <!-- Game controls and status messages -->
+    <div class="game-controls">
+        <!-- Create multiplayer room -->
+        <div class="create-room-controls">
+            <span>Create multiplayer room:</span>
+            <button id="multiplayer-button">Create Room</button>
+        </div>
+
+        <!-- Join multiplayer room -->
+        <div class="join-room-controls">
+            <label for="room-code-input">Join multiplayer room:</label>
+            <input id="room-code-input" type="text" placeholder="Enter room code">
+            <button id="join-room-button">Join</button>
+        </div>
+
+        <!-- Active room code -->
+        <p id="room-code-display" class="hide-when-empty"></p>
+
+        <!-- Leave room button -->
+        <button id="leave-room-button" hidden>Leave Multiplayer Game</button>
+    
+        <!-- Game messages -->
+        <p id="game-message" class="hide-when-empty"></p>
+        <p id="room-error-message" class="hide-when-empty"></p>
+        <p id="multiplayer-status-message" class="hide-when-empty"></p>
+
+        <!-- Play again button -->
+        <button id="play-again" hidden>Play Again</button>
+    </div>
 
     <!-- Game boards -->
     <div class="boards-container">
@@ -24,8 +46,7 @@
         <div class="opponent-board" id="opponent-board" hidden></div>
     </div>
 
-    <!-- Play again button and on-screen keyboard -->
-    <button id="play-again" hidden>Play Again</button>
+     <!-- On-screen keyboard -->
     <div class="keyboard" id="keyboard"></div>
 
     <!-- Scripts -->

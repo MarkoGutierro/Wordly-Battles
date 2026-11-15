@@ -1,6 +1,7 @@
 /* General Styling */
 :root {
     color-scheme: dark;
+    font-family: system-ui, sans-serif;
 }
 
 body {
@@ -13,6 +14,10 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+button, input {
+    font-family: inherit;
 }
 
 .hide-when-empty:empty {

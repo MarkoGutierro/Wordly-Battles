@@ -16,6 +16,7 @@ const io = new Server(server, {
     }
 });
 
+const MAX_PLAYERS = 2; // Maximum number of players allowed per multiplayer room
 const rooms = {}; // Store all active multiplayer rooms by room code
 
 // Load the multiplayer solution words from the game words list
@@ -106,7 +107,7 @@ io.on("connection", (socket) => {
         }
 
         // Start a new game once both players are ready
-        if (rooms[roomCode].rematchReady.length === 2) {
+        if (rooms[roomCode].rematchReady.length === MAX_PLAYERS) {
             startMultiplayerGame(roomCode);
         }
     });
@@ -179,7 +180,7 @@ function joinRoom(socket, roomCode) {
     }
 
     // Check if the room already has two players
-    if (rooms[roomCode].players.length >= 2) {
+    if (rooms[roomCode].players.length >= MAX_PLAYERS) {
         socket.emit("join-error", "Room is full");
         return;
     }
@@ -235,7 +236,7 @@ function leaveCurrentRoom(socket) {
 
 // Start a multiplayer game once a room has two players and initialize game state
 function startMultiplayerGame(roomCode) {
-    if (rooms[roomCode].players.length === 2) {
+    if (rooms[roomCode].players.length === MAX_PLAYERS) {
         // Select a random solution word
         const randomIndex = Math.floor(Math.random() * gameWords.length);
         const secretWord = gameWords[randomIndex];

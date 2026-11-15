@@ -8,46 +8,50 @@
 </head>
 <body>
     <!-- Page Header -->
-    <h1>Wordly Battles</h1>
+    <header>
+        <h1>Wordly Battles</h1>
+    </header>
 
-    <!-- Game controls and status messages -->
-    <div class="game-controls">
-        <!-- Create multiplayer room -->
-        <div class="create-room-controls">
-            <span>Create multiplayer room:</span>
-            <button id="multiplayer-button">Create Room</button>
-        </div>
+    <main>
+        <!-- Game controls and status messages -->
+        <section class="game-controls" aria-label="Game controls">
+            <!-- Create multiplayer room -->
+            <div class="create-room-controls">
+                <span>Create multiplayer room:</span>
+                <button id="multiplayer-button">Create Room</button>
+            </div>
 
-        <!-- Join multiplayer room -->
-        <div class="join-room-controls">
-            <label for="room-code-input">Join multiplayer room:</label>
-            <input id="room-code-input" type="text" placeholder="Enter room code">
-            <button id="join-room-button">Join</button>
-        </div>
+            <!-- Join multiplayer room -->
+            <div class="join-room-controls">
+                <label for="room-code-input">Join multiplayer room:</label>
+                <input id="room-code-input" type="text" placeholder="Enter room code">
+                <button id="join-room-button">Join</button>
+            </div>
 
-        <!-- Active room code -->
-        <p id="room-code-display" class="hide-when-empty"></p>
+            <!-- Active room code -->
+            <p id="room-code-display" class="hide-when-empty"></p>
 
-        <!-- Leave room button -->
-        <button id="leave-room-button" hidden>Leave Multiplayer Game</button>
-    
-        <!-- Game messages -->
-        <p id="game-message" class="hide-when-empty"></p>
-        <p id="room-error-message" class="hide-when-empty"></p>
-        <p id="multiplayer-status-message" class="hide-when-empty"></p>
+            <!-- Leave room button -->
+            <button id="leave-room-button" hidden>Leave Multiplayer Game</button>
+        
+            <!-- Game messages -->
+            <p id="game-message" class="hide-when-empty" role="status"></p>
+            <p id="room-error-message" class="hide-when-empty" role="alert"></p>
+            <p id="multiplayer-status-message" class="hide-when-empty" role="status"></p>
 
-        <!-- Play again button -->
-        <button id="play-again" hidden>Play Again</button>
-    </div>
+            <!-- Play again button -->
+            <button id="play-again" hidden>Play Again</button>
+        </section>
 
-    <!-- Game boards -->
-    <div class="boards-container">
-        <div class="board" id="board"></div>
-        <div class="opponent-board" id="opponent-board" hidden></div>
-    </div>
+        <!-- Game boards -->
+        <section class="boards-container" aria-label="Game boards">
+            <div class="board" id="board" role="group" aria-label="Your game board"></div>
+            <div class="opponent-board" id="opponent-board" role="group" aria-label="Opponent game board" hidden></div>
+        </section>
 
-     <!-- On-screen keyboard -->
-    <div class="keyboard" id="keyboard"></div>
+        <!-- On-screen keyboard -->
+        <section class="keyboard" id="keyboard" aria-label="On-screen keyboard"></section>
+    </main>
 
     <!-- Scripts -->
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>

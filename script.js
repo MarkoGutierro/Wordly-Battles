@@ -51,11 +51,27 @@ let secretWord = ""; // Store the randomly selected single-player solution word
 loadWordFiles(); // Load both word files before allowing the game to start
 
 // Generate the game board
-for (let i = 0; i < TOTAL_TILES; i++) {
-    const tile = document.createElement("div");
-    tile.classList.add("tile");
-    board.appendChild(tile);
+for (let row = 0; row < MAX_ATTEMPTS; row++) {
+    // Create a row
+    const rowDiv = document.createElement("div");
+    rowDiv.classList.add("board-row");
+    rowDiv.setAttribute("role", "row");
+
+    // Create the tiles within each row
+    for (let column = 0; column < WORD_LENGTH; column++) {
+        const tile = document.createElement("div");
+        tile.classList.add("tile");
+        tile.setAttribute("role", "cell");
+        tile.setAttribute("aria-label", "Empty");
+
+        rowDiv.appendChild(tile);
+    }
+
+    // Add the completed row to the board
+    board.appendChild(rowDiv);
 }
+
+const boardTiles = board.querySelectorAll(".tile"); // Store all tiles on the main game board
 
 // Create the opponent's game board
 for (let i = 0; i < TOTAL_TILES; i++) {
@@ -142,10 +158,22 @@ closeHowToPlayButton.addEventListener("click", () => {
 
 // Physical keyboard events
 document.addEventListener("keydown", function(event) {
+    // Ignore keyboard input when How to Play menu is open
     if (howToPlayDialog.open) {
         return;
-    } // Refuse input when How to Play menu is open
+    }
+
+    // Ignore game key input when typing into an input field
+    if (event.target.closest("input")) {
+        return;
+    }
+
+    // Ignore Enter key input when a button is focused
+    if (event.target.closest("button") && event.key === "Enter") {
+        return;
+    }
     
+    // Handle all game key input
     handleKey(event.key);
 });
 
@@ -179,7 +207,8 @@ function handleKey(key) {
     // Backspace: go back one tile
     if (key === "BACKSPACE" && currentTile > currentRow * WORD_LENGTH) {
         currentTile--;
-        board.children[currentTile].textContent = "";
+        boardTiles[currentTile].textContent = "";
+        boardTiles[currentTile].setAttribute("aria-label", "Empty");
         return;
     }
 
@@ -190,7 +219,7 @@ function handleKey(key) {
 
         //Concatenate the guess into a string
         for (let i = rowStart; i < rowStart + WORD_LENGTH; i++) {
-            guess += board.children[i].textContent;
+            guess += boardTiles[i].textContent;
         }
 
         // Reject the guess if it is not in the valid guess list
@@ -227,7 +256,8 @@ function handleKey(key) {
         currentTile < (currentRow + 1) * WORD_LENGTH &&
         currentRow < MAX_ATTEMPTS
     ) {
-        board.children[currentTile].textContent = key;
+        boardTiles[currentTile].textContent = key;
+        boardTiles[currentTile].setAttribute("aria-label", key);
         currentTile++;
     }
 }
@@ -239,10 +269,11 @@ function checkGuess(guess) {
 
     // First pass: mark correct letters
     for (let i = 0; i < WORD_LENGTH; i++) {
-        const tile = board.children[rowStart + i];
+        const tile = boardTiles[rowStart + i];
 
         if (guess[i] === secretWord[i]) {
             tile.classList.add("correct");
+            tile.setAttribute("aria-label", `${guess[i]}, correct position`);
             updateKeyboard(guess[i], "correct");
             remainingLetters[i] = null; //Remove letter from array, it has been accounted for
         }
@@ -250,7 +281,7 @@ function checkGuess(guess) {
 
     // Second pass: mark present or absent letters
     for (let i = 0; i < WORD_LENGTH; i++) {
-        const tile = board.children[rowStart + i];
+        const tile = boardTiles[rowStart + i];
 
         //Letter correct, skip to next loop iteration
         if (guess[i] === secretWord[i]) {
@@ -263,10 +294,12 @@ function checkGuess(guess) {
         // If the letter was found, mark it present and use up that copy
         if (letterIndex !== -1) {
             tile.classList.add("present");
+            tile.setAttribute("aria-label", `${guess[i]}, wrong position`);
             updateKeyboard(guess[i], "present");
             remainingLetters[letterIndex] = null; //Remove letter from array, it has been accounted for
         } else {
             tile.classList.add("absent");
+            tile.setAttribute("aria-label", `${guess[i]}, not in word`);
             updateKeyboard(guess[i], "absent");
         }
     }
@@ -329,8 +362,9 @@ function resetBoard() {
     playAgainButton.hidden = true;
 
     // Reset all board tiles
-    for (const tile of board.children) {
+    for (const tile of boardTiles) {
         tile.textContent = "";
+        tile.setAttribute("aria-label", "Empty");
         tile.classList.remove("correct", "present", "absent");
     }
 
@@ -422,7 +456,18 @@ socket.on("guess-result", ({ guess, result }) => {
 
     // Apply the server's result to each tile and keyboard letter
     for (let i = 0; i < WORD_LENGTH; i++) {
-        board.children[rowStart + i].classList.add(result[i]);
+        const tile = boardTiles[rowStart + i];
+        tile.classList.add(result[i]);
+        
+        // Update the screen-reader label based on the guess result
+        if (result[i] === "correct") {
+            tile.setAttribute("aria-label", `${guess[i]}, correct position`);
+        } else if (result[i] === "present") {
+            tile.setAttribute("aria-label", `${guess[i]}, wrong position`);
+        } else {
+            tile.setAttribute("aria-label", `${guess[i]}, not in word`);
+        }
+        
         updateKeyboard(guess[i], result[i]);
     }
 

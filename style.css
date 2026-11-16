@@ -67,6 +67,11 @@ button, input {
 
 .board {
     display: grid;
+    gap: 4px;
+}
+
+.board-row {
+    display: grid;
     grid-template-columns: repeat(5, clamp(44px, 12vw, 68px));
     gap: 4px;
 }

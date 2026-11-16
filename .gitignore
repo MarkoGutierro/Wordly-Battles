@@ -1,0 +1,13 @@
+# Node.js dependencies
+node_modules/
+
+# Environment variables and secrets
+.env
+.env.*
+
+# Logs
+*.log
+
+# Python cache
+__pycache__/
+*.pyc

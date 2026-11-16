@@ -3,38 +3,33 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import fs from "fs";
+import { fileURLToPath } from "url";
 
 // Create the Express app, HTTP server, and Socket.IO server
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-    cors: {
-        origin: [
-            "http://127.0.0.1:3001",
-            "http://localhost:3001"
-        ]
-    }
-});
+const io = new Server(server);
 
 const MAX_PLAYERS = 2; // Maximum number of players allowed per multiplayer room
 const rooms = {}; // Store all active multiplayer rooms by room code
 
 // Load the multiplayer solution words from the game words list
-const gameWords = fs.readFileSync("../data/game_words.txt", "utf-8")
+const gameWords = fs.readFileSync(fileURLToPath(new URL("../public/data/game_words.txt", import.meta.url)), "utf-8")
     .split(/\r?\n/)
     .map(word => word.trim().toUpperCase())
     .filter(word => word !== "");
 
 // Load the valid multiplayer guesses from the possible guesses list
-const possibleGuesses = fs.readFileSync("../data/possible_guesses.txt", "utf-8")
+const possibleGuesses = fs.readFileSync(fileURLToPath(new URL("../public/data/possible_guesses.txt", import.meta.url)), "utf-8")
     .split(/\r?\n/)
     .map(word => word.trim().toUpperCase())
     .filter(word => word !== "");
 
-// Display a simple message on the root page to confirm the backend server is running
-app.get("/", (req, res) => {
-    res.send("Wordly Battles server is running!");
-});
+// Locate the public folder relative to the server file
+const publicDirectory = fileURLToPath(new URL("../public/", import.meta.url));
+
+// Serve the game's public website files
+app.use(express.static(publicDirectory));
 
 // Handle Socket.IO server connections
 io.on("connection", (socket) => {
@@ -118,9 +113,11 @@ io.on("connection", (socket) => {
     });
 });
 
-// Start the server on port 3000
-server.listen(3000, () => {
-    console.log("Server running on port 3000");
+// Start the server using the hosting platform's port or port 3000 locally
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on port ${PORT}`);
 });
 
 // Create a new multiplayer room when requested

@@ -106,15 +106,19 @@ for (const row of KEYBOARD_ROWS) {
         keyButton.textContent = letter === "BACKSPACE" ? "⌫" : letter;
         keyButton.classList.add("key");
 
-        //Enter and Backspace keys are larger
+        // Enter and Backspace keys are larger
         if (letter === "ENTER" || letter === "BACKSPACE") {
             keyButton.classList.add("wide-key");
         }
 
-        //Handle user input
+        // Give the Backspace key an accessible name
+        if (letter === "BACKSPACE") {
+            keyButton.setAttribute("aria-label", "Backspace");
+        }
+
+        // Handle user input
         keyButton.addEventListener("click", function() {
             handleKey(letter);
-            keyButton.blur();
         });
 
         rowDiv.appendChild(keyButton);
@@ -342,6 +346,15 @@ function updateKeyboard(letter, status) {
             key.classList.remove("absent", "present");
             key.classList.add(status);
 
+            // Update the screen-reader label based on the letter's status
+            if (status === "correct") {
+                key.setAttribute("aria-label", `${letter}, correct position`);
+            } else if (status === "present") {
+                key.setAttribute("aria-label", `${letter}, wrong position`);
+            } else {
+                key.setAttribute("aria-label", `${letter}, not in word`);
+            }
+
             return;
         }
     }
@@ -390,11 +403,16 @@ function resetBoard() {
         tile.classList.remove("correct", "present", "absent");
     }
 
-    // Reset all on-screen keyboard colors
+    // Reset all on-screen keyboard colors and accessibility labels
     const keys = document.querySelectorAll(".key");
 
     for (const key of keys) {
         key.classList.remove("correct", "present", "absent");
+
+        // Reset accessible labels while preserving the Backspace label
+        if (key.textContent !== "⌫") {
+            key.removeAttribute("aria-label");
+        }
     }
 }
 

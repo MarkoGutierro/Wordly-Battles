@@ -73,12 +73,28 @@ for (let row = 0; row < MAX_ATTEMPTS; row++) {
 
 const boardTiles = board.querySelectorAll(".tile"); // Store all tiles on the main game board
 
-// Create the opponent's game board
-for (let i = 0; i < TOTAL_TILES; i++) {
-    const tile = document.createElement("div");
-    tile.classList.add("opponent-tile");
-    opponentBoard.appendChild(tile);
+// Generate the opponent's game board
+for (let row = 0; row < MAX_ATTEMPTS; row++) {
+    // Create a row
+    const rowDiv = document.createElement("div");
+    rowDiv.classList.add("opponent-board-row");
+    rowDiv.setAttribute("role", "row");
+
+    // Create the tiles within each row
+    for (let column = 0; column < WORD_LENGTH; column++) {
+        const tile = document.createElement("div");
+        tile.classList.add("opponent-tile");
+        tile.setAttribute("role", "cell");
+        tile.setAttribute("aria-label", "Empty");
+
+        rowDiv.appendChild(tile);
+    }
+
+    // Add the completed row to the opponent's board
+    opponentBoard.appendChild(rowDiv);
 }
+
+const opponentTiles = opponentBoard.querySelectorAll(".opponent-tile"); // Store all tiles on the opponent's game board
 
 // Generate the on-screen game keyboard
 for (const row of KEYBOARD_ROWS) {
@@ -369,7 +385,8 @@ function resetBoard() {
     }
 
     // Reset all opponent board tiles
-    for (const tile of opponentBoard.children) {
+    for (const tile of opponentTiles) {
+        tile.setAttribute("aria-label", "Empty");
         tile.classList.remove("correct", "present", "absent");
     }
 
@@ -491,7 +508,17 @@ socket.on("opponent-guess-result", (result) => {
 
     // Apply the server's result to each tile
     for (let i = 0; i < WORD_LENGTH; i++) {
-        opponentBoard.children[rowStart + i].classList.add(result[i]);
+        const tile = opponentTiles[rowStart + i];
+        tile.classList.add(result[i]);
+
+        // Update the screen-reader label without revealing the opponent's letters
+        if (result[i] === "correct") {
+            tile.setAttribute("aria-label", "Correct position");
+        } else if (result[i] === "present") {
+            tile.setAttribute("aria-label", "Wrong position");
+        } else {
+            tile.setAttribute("aria-label", "Not in word");
+        }
     }
 
     // Move to the next row

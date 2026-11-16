@@ -76,6 +76,19 @@ button, input {
     gap: 4px;
 }
 
+.tile {
+    width: clamp(44px, 12vw, 68px);
+    height: clamp(44px, 12vw, 68px);
+    border: 2px solid #999;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: clamp(1.5rem, 6vw, 2.25rem);
+    font-weight: bold;
+}
+
 .opponent-board-container {
     display: flex;
     flex-direction: column;
@@ -96,21 +109,13 @@ button, input {
 
 .opponent-board {
     display: grid;
-    grid-template-columns: repeat(5, clamp(8px, 2.5vw, 23px));
     gap: 2px;
 }
 
-.tile {
-    width: clamp(44px, 12vw, 68px);
-    height: clamp(44px, 12vw, 68px);
-    border: 2px solid #999;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    font-size: clamp(1.5rem, 6vw, 2.25rem);
-    font-weight: bold;
+.opponent-board-row {
+    display: grid;
+    grid-template-columns: repeat(5, clamp(8px, 2.5vw, 23px));
+    gap: 2px;
 }
 
 .opponent-tile {

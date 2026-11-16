@@ -27,10 +27,6 @@ button, input {
     font-family: inherit;
 }
 
-.hide-when-empty:empty {
-    display: none;
-}
-
 /* How to Play Styling */
 
 #how-to-play-dialog {
@@ -181,6 +177,10 @@ button, input {
     margin: 0;
 }
 
+.game-controls p:empty {
+    position: absolute;
+} /* Prevent empty paragraphs from creating gaps */
+
 .create-room-controls,
 .join-room-controls {
     display: flex;
@@ -192,6 +192,18 @@ button, input {
 
 /* Status Message Styling */
 
+.opponent-departure-message {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.game-controls .game-start-message {
+    font-weight: bold;
+    font-size: 2rem;
+    margin: 16px 0;
+}
+
 #game-message:not(:empty) {
     margin-top: 16px;
     font-size: 1.5rem;
@@ -199,13 +211,6 @@ button, input {
     text-align: center;
 }
 
-.game-start-message {
-    font-weight: bold;
-    font-size: 2rem;
-}
-
-.opponent-departure-message {
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-align: center;
-}
+#game-message:empty ~ #multiplayer-status-message.opponent-departure-message {
+    margin-top: 16px;
+} /* Add spacing above opponent departure messages when no game message is displayed */

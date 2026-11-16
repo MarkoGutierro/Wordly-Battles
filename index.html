@@ -30,15 +30,15 @@
             </div>
 
             <!-- Active room code -->
-            <p id="room-code-display" class="hide-when-empty"></p>
+            <p id="room-code-display"></p>
 
             <!-- Leave room button -->
             <button id="leave-room-button" hidden>Leave Multiplayer Game</button>
         
             <!-- Game messages -->
-            <p id="game-message" class="hide-when-empty" role="status"></p>
-            <p id="room-error-message" class="hide-when-empty" role="alert"></p>
-            <p id="multiplayer-status-message" class="hide-when-empty" role="status"></p>
+            <p id="game-message" role="status"></p>
+            <p id="room-error-message" role="alert"></p>
+            <p id="multiplayer-status-message" role="status"></p>
 
             <!-- Play again button -->
             <button id="play-again" hidden>Play Again</button>
@@ -46,10 +46,10 @@
 
         <!-- Game boards -->
         <section class="boards-container" aria-label="Game boards">
-            <div class="board" id="board" role="table" aria-label="Your game board"></div>
+            <div class="board" id="board" role="table" aria-label="Your game board" tabindex="0"></div>
             <div class="opponent-board-container" hidden>
                 <h2>Opponent's Board</h2>
-                <div class="opponent-board" id="opponent-board" role="table" aria-label="Opponent game board"></div>
+                <div class="opponent-board" id="opponent-board" role="table" aria-label="Opponent game board" tabindex="0"></div>
             </div>
         </section>
 

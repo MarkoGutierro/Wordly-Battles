@@ -10,6 +10,7 @@
     <!-- Page Header -->
     <header>
         <h1>Wordly Battles</h1>
+        <button id="how-to-play-button" type="button" aria-label="How to Play">?</button>
     </header>
 
     <main>
@@ -55,6 +56,25 @@
         <!-- On-screen keyboard -->
         <section class="keyboard" id="keyboard" aria-label="On-screen keyboard"></section>
     </main>
+
+    <!-- How to Play Popup -->
+    <dialog id="how-to-play-dialog" aria-labelledby="how-to-play-title">
+        <h2 id="how-to-play-title">How to Play</h2>
+
+        <p>Guess the five-letter word in six attempts or less.</p>
+        <p>Each guess must be a valid five-letter word.</p>
+
+        <h3>Guess Feedback</h3>
+        <p>Green: Correct letter and position.</p>
+        <p>Yellow: Correct letter, wrong position.</p>
+        <p>Gray: Letter is not in the word.</p>
+
+        <h3>Multiplayer</h3>
+        <p>Race against another player to guess the same five-letter word. The first player to guess correctly wins. 
+            Using all six attempts without guessing correctly results in an automatic loss!</p>
+
+        <button id="close-how-to-play" type="button">Close</button>
+    </dialog>
 
     <!-- Scripts -->
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>

@@ -17,6 +17,11 @@ const keyboard = document.getElementById("keyboard"); // On-screen game keyboard
 const playAgainButton = document.getElementById("play-again"); // Play Again button
 const gameMessage = document.getElementById("game-message"); // Messages related to gameplay
 
+// How to Play elements
+const howToPlayButton = document.getElementById("how-to-play-button"); // Opens the How to Play dialog
+const howToPlayDialog = document.getElementById("how-to-play-dialog"); // How to Play dialog
+const closeHowToPlayButton = document.getElementById("close-how-to-play"); // Closes the How to Play dialog
+
 // Multiplayer elements
 const multiplayerButton = document.getElementById("multiplayer-button"); // Multiplayer button
 const roomCodeDisplay = document.getElementById("room-code-display"); // Displays the current multiplayer room code
@@ -125,8 +130,22 @@ async function loadPossibleGuesses() {
         .filter(word => word !== "");
 }
 
+// Open the How to Play dialog
+howToPlayButton.addEventListener("click", () => {
+    howToPlayDialog.showModal();
+});
+
+// Close the How to Play dialog
+closeHowToPlayButton.addEventListener("click", () => {
+    howToPlayDialog.close();
+});
+
 // Physical keyboard events
 document.addEventListener("keydown", function(event) {
+    if (howToPlayDialog.open) {
+        return;
+    } // Refuse input when How to Play menu is open
+    
     handleKey(event.key);
 });
 

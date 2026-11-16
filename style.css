@@ -4,6 +4,13 @@
     font-family: system-ui, sans-serif;
 }
 
+header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(15px, 3vw, 24px);
+}
+
 body {
     display: flex;
     flex-direction: column;
@@ -22,6 +29,31 @@ button, input {
 
 .hide-when-empty:empty {
     display: none;
+}
+
+/* How to Play Styling */
+
+#how-to-play-dialog {
+    max-width: min(90vw, 600px);
+    box-sizing: border-box;
+}
+
+#how-to-play-dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+#how-to-play-button {
+    width: clamp(24px, 7vw, 32px);
+    height: clamp(24px, 7vw, 32px);
+    line-height: 1;
+    font-size: 125%;
+    padding: 0;
+    box-sizing: border-box;
+    flex-shrink: 0;
+
+    border: 3px solid #999;
+    border-radius: 50%;
+    cursor: pointer;
 }
 
 /* Game Board Styling */

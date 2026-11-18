@@ -27,6 +27,12 @@ button, input {
     font-family: inherit;
 }
 
+.key, 
+#how-to-play-button { 
+    color: white; 
+    -webkit-text-fill-color: white; 
+} /* Ensures consistent white text across browsers */
+
 /* How to Play Styling */
 
 #how-to-play-dialog {

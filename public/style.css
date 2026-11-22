@@ -64,7 +64,7 @@ button, input {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: clamp(8px, 3vw, 40px);
+    gap: clamp(16px, 3vw, 40px);
 }
 
 .board {

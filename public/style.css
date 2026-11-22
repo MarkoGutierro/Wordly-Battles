@@ -145,6 +145,7 @@ button, input {
     font-size: clamp(0.9rem, 4vw, 1.125rem);
     font-weight: bold;
     background-color: #737577;
+    touch-action: manipulation;
 
     border: 1.5px solid #999;
     border-radius: 4px;

@@ -15,6 +15,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    min-height: 100dvh;
+    margin: 0;
 }
 
 main {
@@ -221,3 +223,21 @@ button, input {
 #game-message:empty ~ #multiplayer-status-message.opponent-departure-message {
     margin-top: 16px;
 } /* Add spacing above opponent departure messages when no game message is displayed */
+
+/* Footer Styling */
+
+footer {
+    margin-top: auto;
+    padding: 12px 0;
+    text-align: center;
+    font-size: 0.75rem;
+}
+
+footer p {
+    margin: 3px 0;
+}
+
+footer a {
+    color: inherit;
+    text-decoration: underline;
+}

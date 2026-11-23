@@ -51,3 +51,4 @@ wordly-battles/
 
 - Inspired by [Wordle](https://www.nytimes.com/games/wordle/index.html) from The New York Times. Wordly Battles is an independent project and is not affiliated with The New York Times.
 - Custom word list derived from the [English Speller Database (ESDB)](https://wordlist.aspell.net/), maintained by Kevin Atkinson. Further details in the repository's [THIRD_PARTY_LICENSES](https://github.com/MarkoGutierro/Wordly-Battles/blob/main/THIRD_PARTY_LICENSES.txt) file.
+- Offensive-word filtering used the [Offensive/Profane Word List](https://www.cs.cmu.edu/~biglou/resources/) published by Luis von Ahn's research group at Carnegie Mellon University.

@@ -1,3 +1,10 @@
+Wordly Battles uses content from the English Speller Database (ESDB), 
+developed and maintained by Kevin Atkinson. The original and processed word lists are 
+included in this repository.
+
+Special thanks to Kevin Atkinson for making this valuable resource available to developers.
+
+ESDB License: 
 Copyright 2000-2026 by Kevin Atkinson
 
 Permission to use, copy, modify, distribute, and sell any part of the English
